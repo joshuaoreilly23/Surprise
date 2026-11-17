@@ -27,6 +27,8 @@
 
         music.volume = 0.35;
 
+        let musicWasPlaying = false;
+
         function startMusic() {
             music.play().catch(() => {});
         }
@@ -41,6 +43,23 @@
 
         document.addEventListener("pointerdown", startMusic, {
             once: true
+        });
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                musicWasPlaying = !music.paused;
+                music.pause();
+            } else if (musicWasPlaying) {
+                music.play().catch(() => {});
+            }
+        });
+
+        window.addEventListener("pagehide", () => {
+            music.pause();
+        });
+
+        window.addEventListener("beforeunload", () => {
+            music.pause();
         });
     </script>
 
