@@ -88,16 +88,15 @@ function drawBackground() {
     let offsetY;
 
     if (screenRatio > imageRatio) {
-        drawWidth = width;
-        drawHeight = width / imageRatio;
-        offsetX = 0;
-        offsetY = (height - drawHeight) / 2;
-    } else {
         drawHeight = height;
         drawWidth = height * imageRatio;
-        offsetX = (width - drawWidth) / 2;
-        offsetY = 0;
+    } else {
+        drawWidth = width;
+        drawHeight = width / imageRatio;
     }
+
+    offsetX = (width - drawWidth) / 2;
+    offsetY = (height - drawHeight) / 2;
 
     ctx.drawImage(
         background,
