@@ -13,22 +13,22 @@ body {
 }
 
 body {
+    position: fixed;
+    inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #080707;
+    overscroll-behavior: none;
 }
 
 #scene {
     display: block;
     width: 100vw;
     height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-}
-
-@media (max-width: 600px) {
-    #scene {
-        width: 100vw;
-        height: 100vh;
-    }
+    touch-action: manipulation;
 }
