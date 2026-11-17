@@ -9,34 +9,123 @@ background.src = "scene.png";
 let width = 0;
 let height = 0;
 
+let imageX = 0;
+let imageY = 0;
+let imageWidth = 0;
+let imageHeight = 0;
+
 const rain = [];
 const fog = [];
 const particles = [];
 
 function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        2
+    );
+
+    canvas.width =
+        Math.floor(width * dpr);
+
+    canvas.height =
+        Math.floor(height * dpr);
+
+    canvas.style.width =
+        width + "px";
+
+    canvas.style.height =
+        height + "px";
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
 
     ctx.imageSmoothingEnabled = false;
+
+    calculateImageSize();
 
     createRain();
     createFog();
     createParticles();
 }
 
+function calculateImageSize() {
+    if (
+        !background.complete ||
+        background.naturalWidth === 0
+    ) {
+        return;
+    }
+
+    const imageRatio =
+        background.naturalWidth /
+        background.naturalHeight;
+
+    const screenRatio =
+        width / height;
+
+    let scale;
+
+    if (screenRatio > imageRatio) {
+        scale =
+            height /
+            background.naturalHeight;
+    } else {
+        scale =
+            width /
+            background.naturalWidth;
+    }
+
+    imageWidth =
+        background.naturalWidth * scale;
+
+    imageHeight =
+        background.naturalHeight * scale;
+
+    imageX =
+        (width - imageWidth) / 2;
+
+    imageY =
+        (height - imageHeight) / 2;
+}
+
 function createRain() {
     rain.length = 0;
 
-    const amount = Math.floor((width * height) / 1800);
+    const amount =
+        Math.floor(
+            (imageWidth * imageHeight) / 1800
+        );
 
     for (let i = 0; i < amount; i++) {
         rain.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            length: Math.random() * 16 + 9,
-            speed: Math.random() * 9 + 12,
-            drift: Math.random() * 1.5 + 0.8,
-            opacity: Math.random() * 0.45 + 0.2
+            x:
+                imageX +
+                Math.random() * imageWidth,
+
+            y:
+                imageY +
+                Math.random() * imageHeight,
+
+            length:
+                Math.random() * 16 + 9,
+
+            speed:
+                Math.random() * 9 + 12,
+
+            drift:
+                Math.random() * 1.5 + 0.8,
+
+            opacity:
+                Math.random() * 0.45 + 0.2
         });
     }
 }
@@ -46,11 +135,25 @@ function createFog() {
 
     for (let i = 0; i < 10; i++) {
         fog.push({
-            x: Math.random() * width,
-            y: height * 0.48 + Math.random() * height * 0.35,
-            size: Math.random() * 170 + 100,
-            speed: Math.random() * 0.35 + 0.1,
-            opacity: Math.random() * 0.025 + 0.01
+            x:
+                imageX +
+                Math.random() * imageWidth,
+
+            y:
+                imageY +
+                imageHeight * 0.48 +
+                Math.random() *
+                imageHeight *
+                0.35,
+
+            size:
+                Math.random() * 170 + 100,
+
+            speed:
+                Math.random() * 0.35 + 0.1,
+
+            opacity:
+                Math.random() * 0.025 + 0.01
         });
     }
 }
@@ -60,36 +163,33 @@ function createParticles() {
 
     for (let i = 0; i < 25; i++) {
         particles.push({
-            x: width * 0.45 + Math.random() * width * 0.5,
-            y: height * 0.2 + Math.random() * height * 0.6,
-            size: Math.random() * 2 + 1,
-            speed: Math.random() * 0.25 + 0.08,
-            opacity: Math.random() * 0.12 + 0.03
+            x:
+                imageX +
+                imageWidth * 0.45 +
+                Math.random() *
+                imageWidth *
+                0.5,
+
+            y:
+                imageY +
+                imageHeight * 0.2 +
+                Math.random() *
+                imageHeight *
+                0.6,
+
+            size:
+                Math.random() * 2 + 1,
+
+            speed:
+                Math.random() * 0.25 + 0.08,
+
+            opacity:
+                Math.random() * 0.12 + 0.03
         });
     }
 }
 
 function drawBackground() {
-    if (!background.complete || background.naturalWidth === 0) {
-        ctx.fillStyle = "#080707";
-        ctx.fillRect(0, 0, width, height);
-        return;
-    }
-
-    const imageWidth = background.naturalWidth;
-    const imageHeight = background.naturalHeight;
-
-    const scale = Math.min(
-        width / imageWidth,
-        height / imageHeight
-    );
-
-    const drawWidth = imageWidth * scale;
-    const drawHeight = imageHeight * scale;
-
-    const offsetX = (width - drawWidth) / 2;
-    const offsetY = (height - drawHeight) / 2;
-
     ctx.fillStyle = "#080707";
 
     ctx.fillRect(
@@ -99,17 +199,39 @@ function drawBackground() {
         height
     );
 
+    if (
+        !background.complete ||
+        background.naturalWidth === 0
+    ) {
+        return;
+    }
+
     ctx.drawImage(
         background,
-        Math.round(offsetX),
-        Math.round(offsetY),
-        Math.round(drawWidth),
-        Math.round(drawHeight)
+        Math.round(imageX),
+        Math.round(imageY),
+        Math.round(imageWidth),
+        Math.round(imageHeight)
     );
 }
 
-function drawRain() {
+function beginSceneClip() {
     ctx.save();
+
+    ctx.beginPath();
+
+    ctx.rect(
+        imageX,
+        imageY,
+        imageWidth,
+        imageHeight
+    );
+
+    ctx.clip();
+}
+
+function drawRain() {
+    beginSceneClip();
 
     for (const drop of rain) {
         ctx.beginPath();
@@ -134,13 +256,29 @@ function drawRain() {
         drop.x -= drop.drift;
         drop.y += drop.speed;
 
-        if (drop.y > height + 20) {
-            drop.y = -20;
-            drop.x = Math.random() * width;
+        if (
+            drop.y >
+            imageY +
+            imageHeight +
+            20
+        ) {
+            drop.y =
+                imageY - 20;
+
+            drop.x =
+                imageX +
+                Math.random() *
+                imageWidth;
         }
 
-        if (drop.x < -20) {
-            drop.x = width + 20;
+        if (
+            drop.x <
+            imageX - 20
+        ) {
+            drop.x =
+                imageX +
+                imageWidth +
+                20;
         }
     }
 
@@ -148,7 +286,7 @@ function drawRain() {
 }
 
 function drawFog(time) {
-    ctx.save();
+    beginSceneClip();
 
     for (const cloud of fog) {
         const movement =
@@ -157,16 +295,19 @@ function drawFog(time) {
                 cloud.x * 0.01
             ) * 25;
 
-        const x = cloud.x + movement;
+        const x =
+            cloud.x +
+            movement;
 
-        const gradient = ctx.createRadialGradient(
-            x,
-            cloud.y,
-            0,
-            x,
-            cloud.y,
-            cloud.size
-        );
+        const gradient =
+            ctx.createRadialGradient(
+                x,
+                cloud.y,
+                0,
+                x,
+                cloud.y,
+                cloud.size
+            );
 
         gradient.addColorStop(
             0,
@@ -199,8 +340,13 @@ function drawFog(time) {
 
         cloud.x += cloud.speed;
 
-        if (cloud.x - cloud.size > width) {
-            cloud.x = -cloud.size;
+        if (
+            cloud.x - cloud.size >
+            imageX + imageWidth
+        ) {
+            cloud.x =
+                imageX -
+                cloud.size;
         }
     }
 
@@ -208,19 +354,22 @@ function drawFog(time) {
 }
 
 function drawLampGlow(time) {
+    beginSceneClip();
+
     const flicker =
         0.96 +
         Math.sin(time * 0.002) * 0.025 +
         Math.sin(time * 0.006) * 0.012;
 
-    const glow = ctx.createRadialGradient(
-        width * 0.69,
-        height * 0.43,
-        5,
-        width * 0.69,
-        height * 0.43,
-        width * 0.35
-    );
+    const glow =
+        ctx.createRadialGradient(
+            imageX + imageWidth * 0.69,
+            imageY + imageHeight * 0.43,
+            5,
+            imageX + imageWidth * 0.69,
+            imageY + imageHeight * 0.43,
+            imageWidth * 0.35
+        );
 
     glow.addColorStop(
         0,
@@ -240,21 +389,29 @@ function drawLampGlow(time) {
     ctx.fillStyle = glow;
 
     ctx.fillRect(
-        0,
-        0,
-        width,
-        height
+        imageX,
+        imageY,
+        imageWidth,
+        imageHeight
     );
+
+    ctx.restore();
 }
 
 function drawParticles(time) {
-    ctx.save();
+    beginSceneClip();
 
     for (const particle of particles) {
         particle.y -= particle.speed;
 
-        if (particle.y < height * 0.15) {
-            particle.y = height * 0.8;
+        if (
+            particle.y <
+            imageY +
+            imageHeight * 0.15
+        ) {
+            particle.y =
+                imageY +
+                imageHeight * 0.8;
         }
 
         const pulse =
@@ -304,9 +461,19 @@ window.addEventListener(
     resize
 );
 
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "resize",
+        resize
+    );
+}
+
 background.onload = () => {
     resize();
-    requestAnimationFrame(animate);
+
+    requestAnimationFrame(
+        animate
+    );
 };
 
 resize();
