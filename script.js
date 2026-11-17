@@ -76,34 +76,35 @@ function drawBackground() {
         return;
     }
 
-    const imageRatio =
-        background.naturalWidth /
-        background.naturalHeight;
+    const imageWidth = background.naturalWidth;
+    const imageHeight = background.naturalHeight;
 
-    const screenRatio = width / height;
+    const scale = Math.min(
+        width / imageWidth,
+        height / imageHeight
+    );
 
-    let drawWidth;
-    let drawHeight;
-    let offsetX;
-    let offsetY;
+    const drawWidth = imageWidth * scale;
+    const drawHeight = imageHeight * scale;
 
-    if (screenRatio > imageRatio) {
-        drawHeight = height;
-        drawWidth = height * imageRatio;
-    } else {
-        drawWidth = width;
-        drawHeight = width / imageRatio;
-    }
+    const offsetX = (width - drawWidth) / 2;
+    const offsetY = (height - drawHeight) / 2;
 
-    offsetX = (width - drawWidth) / 2;
-    offsetY = (height - drawHeight) / 2;
+    ctx.fillStyle = "#080707";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
 
     ctx.drawImage(
         background,
-        Math.floor(offsetX),
-        Math.floor(offsetY),
-        Math.ceil(drawWidth),
-        Math.ceil(drawHeight)
+        Math.round(offsetX),
+        Math.round(offsetY),
+        Math.round(drawWidth),
+        Math.round(drawHeight)
     );
 }
 
