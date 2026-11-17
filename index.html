@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainy Night</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="scene"></canvas>
+
+    <audio id="backgroundMusic" autoplay preload="auto">
+        <source src="rosemary.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+
+    <script>
+        const music = document.getElementById("backgroundMusic");
+
+        music.volume = 0.35;
+
+        music.play().catch(() => {
+            const startMusic = () => {
+                music.play();
+                document.removeEventListener("click", startMusic);
+                document.removeEventListener("keydown", startMusic);
+                document.removeEventListener("touchstart", startMusic);
+            };
+
+            document.addEventListener("click", startMusic);
+            document.addEventListener("keydown", startMusic);
+            document.addEventListener("touchstart", startMusic);
+        });
+    </script>
+
+</body>
+</html>
